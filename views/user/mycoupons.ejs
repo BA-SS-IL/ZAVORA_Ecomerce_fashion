@@ -1,0 +1,149 @@
+<%- include("../partials/user/header") %>
+<style>
+    :root {
+        --primary-color: #1e90ff;
+        --secondary-color: #2d3436;
+        --success-color: #00b894;
+        --danger-color: #d63031;
+        --light-gray: #dfe6e9;
+        --white: #ffffff;
+        --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--light-gray);
+        color: var(--secondary-color);
+    }
+
+    .content-main {
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .content-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+        margin-bottom: 30px;
+    }
+
+    .coupon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .coupon-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        transition: transform 0.2s ease;
+    }
+
+    .coupon-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .coupon-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 10px;
+        color: var(--primary-color);
+    }
+
+    .coupon-card p {
+        margin: 8px 0;
+        font-size: 0.95rem;
+        color: var(--secondary-color);
+    }
+
+    .coupon-code {
+        background-color: var(--light-gray);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+    .btn-copy {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-copy:hover {
+        background-color: #357abd;
+    }
+
+    @media (max-width: 768px) {
+        .coupon-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="content-main">
+    <h2 class="content-title"><%= title %></h2>
+    <div class="coupon-grid">
+        <% if (coupons.length > 0) { %>
+            <% coupons.forEach(coupon => { %>
+                <div class="coupon-card">
+                    <h3><%= coupon.name %></h3>
+                    <p><strong>Offer Price:</strong> <%= coupon.offerPrice %></p>
+                    <p><strong>Minimum Price:</strong> <%= coupon.minimumPrice %></p>
+                    <p><strong>Expires On:</strong> <%= new Date(coupon.expireOn).toLocaleDateString('en-IN') %></p>
+                    <div class="coupon-code" id="coupon-<%= coupon._id %>"><%= coupon.name %></div>
+                    <button class="btn-copy" onclick="copyCoupon('<%= coupon._id %>', '<%= coupon.name %>')">Copy Coupon</button>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <script>
+                Swal.fire({
+                    icon: "info",
+                    title: "No Coupons Available",
+                    text: "There are no active coupons at the moment.",
+                    confirmButtonText: "OK"
+                });
+            </script>
+        <% } %>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function copyCoupon(couponId, couponCode) {
+        navigator.clipboard.writeText(couponCode).then(() => {
+            Swal.fire({
+                icon: "success",
+                title: "Coupon Copied!",
+                text: `Coupon code ${couponCode} has been copied to your clipboard.`,
+                showCancelButton: true,  // Enables a second button
+                confirmButtonText: "OK",
+                cancelButtonText: "Go to Cart",
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = "/cart";  // Redirect to the cart page
+                }
+            });
+        }).catch(err => {
+            Swal.fire({
+                icon: "error",
+                title: "Copy Failed",
+                text: "Failed to copy the coupon code. Please try again.",
+                confirmButtonText: "OK"
+            });
+            console.error("Error copying coupon:", err);
+        });
+    }
+</script>
+<%- include("../partials/user/footer") %>

@@ -1,0 +1,399 @@
+<%-include("../../views/partials/user/header")%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f8f8;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 80px; /* Adjust to fit your header */
+        }
+
+        .profile-container {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: auto;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            padding: 12px 10px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .sidebar ul li i {
+            margin-right: 10px;
+            color: #ff6600;
+        }
+
+        .sidebar ul li:hover, .sidebar ul .active {
+            background: #ff6600;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .sidebar ul .logout {
+            color: red;
+            margin-top: 20px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .profile-form, .password-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .phone-input input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .phone-input {
+            display: flex;
+            gap: 5px;
+        }
+
+        .phone-input select {
+            width: 60px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .primary {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .primary:hover {
+            background: #0056b3;
+        }
+
+        .secondary {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .secondary:hover {
+            background: #1e7e34;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                text-align: center;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .sidebar ul {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+
+            .sidebar ul li {
+                padding: 10px;
+            }
+        }
+        .profile-pic-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ddd;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+
+        <div class="profile-container">
+            <aside class="sidebar">
+                <h2>My Account</h2>
+                <ul>
+                    <li class="active"><i class="fas fa-user"></i> Account Details</li>
+                    <a href="/address"><li><i class="fas fa-map-marker-alt"></i> Address</li></a>
+                    <a href="/orders"><li><i class="fas fa-box"></i> Orders</li></a>
+                    <a href="/wishlist"><li><i class="fas fa-box"></i> Wishlist</li></a>
+                    <li><i class="fas fa-wallet"></i> Wallet</li>
+                    <a href="/mycoupons"><li><i class="fas fa-box"></i> Coupons</li></a>
+                    <li class="logout"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                </ul>
+            </aside>
+
+            <main class="content">
+                <h2>Personal Information</h2>
+                <!-- <div class="profile-pic-container">
+                    <img src="<%= user.profilePic %>" alt="Profile Picture" class="profile-pic">
+                </div> -->
+                
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Full Name <span class="text-danger">*</span></label>
+                            <input name="name" type="text" value="<%= user.name %>" class="form-control" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Username <span class="text-danger">*</span></label>
+                            <input name="username" type="text" value="<%= user.username %>" placeholder="Set your Username" class="form-control" required>
+                            <small class="text-muted">Choose a unique username</small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Email address</label>
+                            <input type="email" value="<%= user.email %>" class="form-control" disabled>
+                            <small class="text-muted">Email cannot be changed here</small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Phone Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <select class="form-control" id="countryCode" disabled>
+                                        <option value="+91">+91</option>
+                                    </select>
+                                </div>
+                                <input type="text" name="phone" class="form-control" value="<%= user.phone %>" 
+                                       pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number"
+                                       placeholder="Enter phone number" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-md-6">
+                            <a class="btn btn-primary" href="/change-email">Change Your Email</a>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </form>
+                <br>
+                <h2>Change Password</h2>
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                        <small id="currentPasswordError" class="text-danger"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                        <small id="newPasswordError" class="text-danger"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        <small id="confirmPasswordError" class="text-danger"></small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+                
+            </main>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+
+<script>
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+    
+        try {
+            const response = await fetch('/update-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+    
+            const result = await response.json();
+    
+            if (result.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Profile updated successfully',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.location.href = '/userProfile';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: result.message,
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'An unexpected error occurred. Please try again.',
+            });
+        }
+    });
+
+
+
+
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Reset error messages
+    document.getElementById('currentPasswordError').textContent = '';
+    document.getElementById('newPasswordError').textContent = '';
+    document.getElementById('confirmPasswordError').textContent = '';
+
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    // Client-side validation
+    let isValid = true;
+
+    if (newPassword.length < 8 || !/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
+        document.getElementById('newPasswordError').textContent = 'Password must be at least 8 characters long and contain both letters and numbers.';
+        isValid = false;
+    }
+
+    if (newPassword !== confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    try {
+        const response = await fetch('/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Password changed successfully',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            window.location.href = '/userProfile';
+        } else {
+            if (result.error === 'current_password_incorrect') {
+                document.getElementById('currentPasswordError').textContent = 'Current password is incorrect.';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: result.message,
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'An unexpected error occurred. Please try again.',
+        });
+    }
+});
+</script>

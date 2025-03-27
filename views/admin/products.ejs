@@ -1,0 +1,188 @@
+<%- include("../../views/partials/admin/header") %>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+</head>
+<div class="content-header">
+    <div>
+        <h2 class="content-title card-title">Products</h2>
+    </div>
+</div>
+<header class="card-header text-center mb-20">
+    <form action="" method="get" class="d-inline">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
+            <button class="btn border-0" type="submit">Search</button>
+        </div>
+    </form>
+</header>
+<div class="right mt-5">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"><b>Product Name</b></th>
+                <th scope="col"><b>Brand</b></th>
+                <th scope="col"><b>Category</b></th>
+                <th scope="col"><b>Regular Price</b></th>
+                <th scope="col"><b>Sale Price</b></th>
+                <th scope="col"><b>Offer</b></th>
+                <th scope="col"><b>Quantity</b></th>
+                <th scope="col"><b>Action</b></th>
+                <th scope="col"><b>Edit</b></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for(let i = data.length - 1; i >= 0; i--) { %>
+            <tr>
+                <td><%= data[i].productName %></td>
+                <td><%= data[i].brand %></td>
+                <td><%= data[i].category.name %></td>
+                <td><%= data[i].regularPrice %></td>
+                <td><%= data[i].salePrice.toFixed(2) %></td>
+                <td>
+                    <% if (data[i].productOffer && data[i].productOffer.discount_percentage > 0) { %>
+                        <span><%= data[i].productOffer.discount_percentage %>% (Product)</span>
+                        <button class="btn btn-danger" onclick="removeOffer('<%= data[i]._id %>')" style="width: 100px;">
+                            Remove
+                        </button>
+                    <% } else { %>
+                        <button class="btn btn-info" onclick="showAddOfferModal('<%= data[i]._id %>')" style="width: 100px;">
+                            Add Offer
+                        </button>
+                    <% } %>
+                    <% if (data[i].category.categoryOffer && data[i].category.categoryOffer.discount_percentage > 0) { %>
+                        <br><span><%= data[i].category.categoryOffer.discount_percentage %>% (Category)</span>
+                    <% } %>
+                </td>
+                <td><%= data[i].quantity %></td>
+                <td>
+                    <% if (data[i].isBlocked === false) { %>
+                        <button class="btn btn-danger" onclick="confirmAction('/admin/blockProduct?id=<%= data[i]._id %>', 'block')">Block</button>
+                    <% } else { %>
+                        <button class="btn btn-success" onclick="confirmAction('/admin/unblockProduct?id=<%= data[i]._id %>', 'unblock')">Unblock</button>
+                    <% } %>
+                </td>
+                <td>
+                    <button class="btn btn-info" style="width: 80px;">
+                        <a href="/admin/editProduct?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;">Edit</a>
+                    </button>
+                </td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Offer Modal -->
+<div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addOfferModalLabel">Add Product Offer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addOfferForm">
+                    <input type="hidden" id="productId" name="productId">
+                    <div class="mb-3">
+                        <label for="discountPercentage" class="form-label">Discount Percentage</label>
+                        <input type="number" class="form-control" id="discountPercentage" name="discountPercentage" min="1" max="100" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Offer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function confirmAction(url, action) {
+        Swal.fire({
+            title: `Are you sure you want to ${action} this product?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: action === "block" ? "#d33" : "#28a745",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: `Yes, ${action} it!`
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+
+    function showAddOfferModal(productId) {
+        $('#productId').val(productId);
+        $('#addOfferModal').modal('show');
+    }
+
+    $('#addOfferForm').submit(function(e) {
+        e.preventDefault();
+        const productId = $('#productId').val();
+        const discountPercentage = $('#discountPercentage').val();
+        const startDate = $('#startDate').val();
+        const endDate = $('#endDate').val();
+
+        $.ajax({
+            url: '/admin/addProductOffer',
+            method: 'POST',
+            data: { productId, discountPercentage, startDate, endDate },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire('Success', response.message, 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+                $('#addOfferModal').modal('hide');
+            },
+            error: function(err) {
+                Swal.fire('Error', 'Failed to add offer', 'error');
+            }
+        });
+    });
+
+    function removeOffer(productId) {
+        Swal.fire({
+            title: 'Are you sure you want to remove this offer?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/admin/removeProductOffer',
+                    method: 'POST',
+                    data: { productId },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire('Success', response.message, 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function(err) {
+                        Swal.fire('Error', 'Failed to remove offer', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>
+
+<%- include("../../views/partials/admin/footer") %>
